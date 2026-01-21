@@ -96,10 +96,13 @@ HCA_Init(&hca,
          oversample_ratio,
          output_limit);
 
-Complex_t kp = {0.5f, 0.0f};
-Complex_t ki = {0.0f, 0.0f};
+Complex_t kp1 = {0.5f, 0.0f}; //real, complex 
+Complex_t ki1 = {0.0f, 0.0f}; //real, complex
 
-HCA_Add_Channel(&hca, 1, kp, ki);  // Fundamental
-HCA_Add_Channel(&hca, 3, kp, ki);  // 3rd harmonic
+Complex_t kp3 = {0.5f, 0.0f}; //real, complex
+Complex_t ki3 = {0.0f, 0.0f}; //real, complex
+
+HCA_Add_Channel(&hca, 1, kp1, ki1);  // Fundamental
+HCA_Add_Channel(&hca, 3, kp3, ki3);  // 3rd harmonic
 
 float u = HCA_Process(&hca, input_signal);
