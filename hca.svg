@@ -1,6 +1,5 @@
-<svg viewBox="0 0 1050 450" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 1050 280" xmlns="http://www.w3.org/2000/svg">
   <style>
-    /* Tüm stilleri sabit siyah/beyaz yapıyoruz */
     .bg-canvas { fill: #ffffff; }
     .block { fill: #ffffff; stroke: #000000; stroke-width: 2; }
     .label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; text-anchor: middle; fill: #000000; }
@@ -15,7 +14,7 @@
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1050" height="450" class="bg-canvas" />
+  <rect x="0" y="40" width="1050" height="280" class="bg-canvas" />
 
   <path d="M 40,200 L 140,200" class="arrow" marker-end="url(#arrowhead)" />
   <text x="70" y="185" class="math">r(t)</text>
