@@ -21,8 +21,7 @@ Still under development and will be updated within the next 6 months.
 - MCU- and desktop-friendly design
 - Supports oversampling
 
-This repository focuses on **implementation quality and runtime performance**,
-not on proposing a new control algorithm.
+This repository focuses on **implementation quality and runtime performance**.
 
 ---
 
