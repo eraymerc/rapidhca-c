@@ -1,28 +1,12 @@
 <svg viewBox="0 0 1050 450" xmlns="http://www.w3.org/2000/svg">
   <style>
-    /* Varsayılan (Işık Teması) Renkleri */
-    :root {
-      --text-main: #000000;
-      --line-main: #000000;
-      --block-bg: #ffffff;
-    }
-
-    /* GitHub Karanlık Modu Algılama */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --text-main: #adbac7; /* GitHub karanlık tema yazı rengi */
-        --line-main: #adbac7;
-      }
-    }
-
-    .block { fill: var(--block-bg); stroke: black; stroke-width: 2; }
-    .label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; text-anchor: middle; fill: var(--text-main); }
-    .math { font-family: 'Times New Roman', serif; font-style: italic; font-size: 22px; text-anchor: middle; fill: var(--text-main); }
-    .arrow { stroke: var(--line-main); stroke-width: 2; fill: none; }
-    .marker { fill: var(--line-main); }
-    
-    /* Blok içindeki yazıların her zaman siyah kalması (beyaz arka plan üzerinde oldukları için) */
-    .block-text { fill: #000000 !important; }
+    /* Tüm stilleri sabit siyah/beyaz yapıyoruz */
+    .bg-canvas { fill: #ffffff; }
+    .block { fill: #ffffff; stroke: #000000; stroke-width: 2; }
+    .label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; text-anchor: middle; fill: #000000; }
+    .math { font-family: 'Times New Roman', serif; font-style: italic; font-size: 22px; text-anchor: middle; fill: #000000; }
+    .arrow { stroke: #000000; stroke-width: 2; fill: none; }
+    .marker { fill: #000000; }
   </style>
 
   <defs>
@@ -31,12 +15,14 @@
     </marker>
   </defs>
 
+  <rect x="0" y="0" width="1050" height="450" class="bg-canvas" />
+
   <path d="M 40,200 L 140,200" class="arrow" marker-end="url(#arrowhead)" />
   <text x="70" y="185" class="math">r(t)</text>
 
   <rect x="140" y="150" width="160" height="100" class="block" />
-  <text x="220" y="195" class="label block-text">Disperser</text>
-  <text x="220" y="225" class="label block-text">&lt; &gt;</text>
+  <text x="220" y="195" class="label">Disperser</text>
+  <text x="220" y="225" class="label">&lt; &gt;</text>
 
   <path d="M 300,180 L 370,180" class="arrow" marker-end="url(#arrowhead)" />
   <path d="M 300,230 L 370,230" class="arrow" marker-end="url(#arrowhead)" />
@@ -47,10 +33,10 @@
   <text x="430" y="70" class="label">HCA</text>
 
   <rect x="430" y="100" width="130" height="60" class="block" />
-  <text x="495" y="138" class="math block-text">Kₚ · rₙ(t)</text>
+  <text x="495" y="138" class="math">Kₚ · rₙ(t)</text>
   
   <rect x="430" y="180" width="130" height="60" class="block" />
-  <text x="495" y="215" class="math block-text" text-anchor="middle">
+  <text x="495" y="215" class="math" text-anchor="middle">
     <tspan>Kᵢ</tspan>
     <tspan font-style="normal" font-size="30" dx="2" dy="5">∫</tspan>
     <tspan font-size="12" dx="-2" dy="-21">t</tspan>
@@ -59,7 +45,7 @@
   </text>
 
   <circle cx="625" cy="170" r="22" class="block" />
-  <text x="625" y="181" class="label block-text" style="font-size: 28px;">Σ</text>
+  <text x="625" y="181" class="label" style="font-size: 28px;">Σ</text>
 
   <path d="M 370,180 L 400,180 L 400,130 L 430,130" class="arrow" marker-end="url(#arrowhead)" />
   <path d="M 370,180 L 400,180 L 400,210 L 430,210" class="arrow" marker-end="url(#arrowhead)" />
@@ -67,9 +53,9 @@
   <path d="M 560,130 L 590,130 L 606,155" class="arrow" marker-end="url(#arrowhead)" />
   <path d="M 560,210 L 590,210 L 606,185" class="arrow" marker-end="url(#arrowhead)" />
   
-  <circle cx="495" cy="255" r="2" class="marker" />
-  <circle cx="495" cy="265" r="2" class="marker" />
-  <circle cx="495" cy="275" r="2" class="marker" />
+  <circle cx="495" cy="255" r="2" fill="black" />
+  <circle cx="495" cy="265" r="2" fill="black" />
+  <circle cx="495" cy="275" r="2" fill="black" />
 
   <path d="M 647,170 L 700,170" class="arrow" marker-end="url(#arrowhead)" />
 
@@ -79,8 +65,8 @@
   <text x="725" y="220" class="math">uₙ</text>
 
   <rect x="750" y="150" width="160" height="100" class="block" />
-  <text x="830" y="195" class="label block-text">Assembler</text>
-  <text x="830" y="225" class="label block-text">&gt; &lt;</text>
+  <text x="830" y="195" class="label">Assembler</text>
+  <text x="830" y="225" class="label">&gt; &lt;</text>
 
   <path d="M 910,200 L 990,200" class="arrow" marker-end="url(#arrowhead)" />
   <text x="960" y="185" class="math">u(t)</text>
