@@ -1,0 +1,87 @@
+<svg viewBox="0 0 1050 450" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    /* Varsayılan (Işık Teması) Renkleri */
+    :root {
+      --text-main: #000000;
+      --line-main: #000000;
+      --block-bg: #ffffff;
+    }
+
+    /* GitHub Karanlık Modu Algılama */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text-main: #adbac7; /* GitHub karanlık tema yazı rengi */
+        --line-main: #adbac7;
+      }
+    }
+
+    .block { fill: var(--block-bg); stroke: black; stroke-width: 2; }
+    .label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 24px; text-anchor: middle; fill: var(--text-main); }
+    .math { font-family: 'Times New Roman', serif; font-style: italic; font-size: 22px; text-anchor: middle; fill: var(--text-main); }
+    .arrow { stroke: var(--line-main); stroke-width: 2; fill: none; }
+    .marker { fill: var(--line-main); }
+    
+    /* Blok içindeki yazıların her zaman siyah kalması (beyaz arka plan üzerinde oldukları için) */
+    .block-text { fill: #000000 !important; }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" class="marker" />
+    </marker>
+  </defs>
+
+  <path d="M 40,200 L 140,200" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="70" y="185" class="math">r(t)</text>
+
+  <rect x="140" y="150" width="160" height="100" class="block" />
+  <text x="220" y="195" class="label block-text">Disperser</text>
+  <text x="220" y="225" class="label block-text">&lt; &gt;</text>
+
+  <path d="M 300,180 L 370,180" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 300,230 L 370,230" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="335" y="170" class="math">r₁</text>
+  <text x="335" y="220" class="math">rₙ</text>
+
+  <rect x="370" y="80" width="330" height="210" class="block" />
+  <text x="430" y="70" class="label">HCA</text>
+
+  <rect x="430" y="100" width="130" height="60" class="block" />
+  <text x="495" y="138" class="math block-text">Kₚ · rₙ(t)</text>
+  
+  <rect x="430" y="180" width="130" height="60" class="block" />
+  <text x="495" y="215" class="math block-text" text-anchor="middle">
+    <tspan>Kᵢ</tspan>
+    <tspan font-style="normal" font-size="30" dx="2" dy="5">∫</tspan>
+    <tspan font-size="12" dx="-2" dy="-21">t</tspan>
+    <tspan font-size="12" dx="-9" dy="23">0</tspan>
+    <tspan dx="10" dy="-7">rₙ(τ) dτ</tspan>
+  </text>
+
+  <circle cx="625" cy="170" r="22" class="block" />
+  <text x="625" y="181" class="label block-text" style="font-size: 28px;">Σ</text>
+
+  <path d="M 370,180 L 400,180 L 400,130 L 430,130" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 370,180 L 400,180 L 400,210 L 430,210" class="arrow" marker-end="url(#arrowhead)" />
+  
+  <path d="M 560,130 L 590,130 L 606,155" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 560,210 L 590,210 L 606,185" class="arrow" marker-end="url(#arrowhead)" />
+  
+  <circle cx="495" cy="255" r="2" class="marker" />
+  <circle cx="495" cy="265" r="2" class="marker" />
+  <circle cx="495" cy="275" r="2" class="marker" />
+
+  <path d="M 647,170 L 700,170" class="arrow" marker-end="url(#arrowhead)" />
+
+  <path d="M 700,170 L 750,170" class="arrow" marker-end="url(#arrowhead)" />
+  <path d="M 700,230 L 750,230" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="725" y="160" class="math">u₁</text>
+  <text x="725" y="220" class="math">uₙ</text>
+
+  <rect x="750" y="150" width="160" height="100" class="block" />
+  <text x="830" y="195" class="label block-text">Assembler</text>
+  <text x="830" y="225" class="label block-text">&gt; &lt;</text>
+
+  <path d="M 910,200 L 990,200" class="arrow" marker-end="url(#arrowhead)" />
+  <text x="960" y="185" class="math">u(t)</text>
+</svg>
