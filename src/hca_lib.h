@@ -34,7 +34,7 @@
 #include <math.h>
 
 /* ============================================================================
- *                                CONFIGURATION
+ * CONFIGURATION
  * ============================================================================
  */
 
@@ -71,7 +71,7 @@
 
 
 /* ============================================================================
- *                              TYPE DEFINITIONS
+ * TYPE DEFINITIONS
  * ============================================================================
  */
 
@@ -91,14 +91,21 @@ typedef struct {
  * @brief Per-harmonic HCA channel structure.
  *
  * Each channel corresponds to one harmonic order (k·ω₀) and implements:
- *  - DDS-based phase tracking
- *  - Disperser (modulation + sliding window integration)
- *  - Complex PI controller
+ * - DDS-based phase tracking
+ * - Disperser (modulation + sliding window integration)
+ * - Complex PI controller
+ * * @note For 0th harmonic (DC):
+ * - Phase is constant (0 rad).
+ * - Disperser window length is equal to the fundamental period (to average out AC).
+ * - Assembler gain is 1.0 (instead of 2.0).
  */
 typedef struct {
 
-    /** Harmonic order (1 = fundamental, 3 = 3rd harmonic, etc.) */
+    /** Harmonic order (0 = DC, 1 = fundamental, 3 = 3rd harmonic, etc.) */
     uint8_t harmonic_order;
+
+    /** Current Value */
+    Complex_t current_val;
 
     /* ---------------- CONTROL PARAMETERS ---------------- */
 
@@ -110,33 +117,6 @@ typedef struct {
 
     /** Integrator state of the complex PI controller */
     Complex_t integrator_state;
-
-    /* ---------------- DISPERSER BLOCK ----------------
-     *
-     * Implements:
-     *  - Modulation into rotating frame
-     *  - Sliding window integration
-     *  - (1 - z^-d) structure
-     */
-
-    /** Circular buffer implementing the z^-d delay line */
-    Complex_t buffer[MAX_WINDOW_SIZE];
-
-    /** Running sum used for sliding window integration */
-    Complex_t running_sum;
-
-    /** Current write index of the circular buffer */
-    uint16_t buf_head;
-
-    /** Effective window length (number of samples) */
-    uint16_t window_len;
-
-    /**
-     * Precomputed reciprocal of window length (1/Ns).
-     * Division is significantly slower than multiplication on MCUs,
-     * so this value is stored explicitly for performance reasons.
-     */
-    float inv_window_len;
 
     /* ---------------- DDS PHASE TRACKING ---------------- */
 
@@ -172,17 +152,35 @@ typedef struct {
     /** Output saturation limit (symmetric) */
     float output_limit;
 
-    /* ---------------- ASSEMBLER BLOCK ----------------
-     * Assembler gain (K).
-     * Typically set to 2.0 to correctly scale reconstructed harmonics.
+    /* ---------------- DISPERSER BLOCK ----------------
+     *
+     * Implements:
+     * - Modulation into rotating frame
+     * - Sliding window integration
+     * - (1 - z^-d) structure
      */
-    float assembler_gain;
+    
+    /** Circular buffer implementing the z^-d delay line */
+    float buffer[MAX_WINDOW_SIZE];
+
+    /** Current write index of the circular buffer */
+    uint16_t buf_head;
+
+    /** Effective window length (number of samples) */
+    uint16_t window_len;
+
+    /**
+     * Precomputed reciprocal of window length (1/Ns).
+     * Division is significantly slower than multiplication on MCUs,
+     * so this value is stored explicitly for performance reasons.
+     */
+    float inv_window_len;
 
 } HCA_Handle_t;
 
 
 /* ============================================================================
- *                          FUNCTION PROTOTYPES
+ * FUNCTION PROTOTYPES
  * ============================================================================
  */
 
