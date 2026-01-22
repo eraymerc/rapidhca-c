@@ -163,28 +163,27 @@ void HCA_Init(HCA_Handle_t *hca,
 
     hca->active_channel_count = 0;
     hca->output_limit = out_limit;
+    
+    // Disperser
+    float N = loop_freq / fund_freq; // N = T/T_s = f_s / f 
+    hca->window_len = N;
+    hca->inv_window_len = 1.0f / (float)N;
+    hca->buf_head = 0;
 
-    // Assembler gain (typically 2.0)
-    hca->assembler_gain = 2.0f;
+    // Clear circular buffer
+    memset(hca->buffer, 0, sizeof(hca->buffer));
 
     // Reset all channels
     for (int i = 0; i < MAX_HARMONICS; i++) {
 
         hca->channels[i].harmonic_order = 0;
 
+        hca->channels[i].current_val.real = 0.0f;
+        hca->channels[i].current_val.imag = 0.0f;
+
         // PI integrator reset
         hca->channels[i].integrator_state.real = 0.0f;
         hca->channels[i].integrator_state.imag = 0.0f;
-
-        // Disperser reset
-        hca->channels[i].running_sum.real = 0.0f;
-        hca->channels[i].running_sum.imag = 0.0f;
-        hca->channels[i].buf_head   = 0;
-        hca->channels[i].window_len = 0;
-        hca->channels[i].inv_window_len = 0.0f;
-
-        memset(hca->channels[i].buffer, 0,
-               sizeof(hca->channels[i].buffer));
     }
 }
 
@@ -206,28 +205,22 @@ void HCA_Add_Channel(HCA_Handle_t *hca,
     float harmonic_freq = hca->fundamental_freq * (float)order;
 
     // DDS phase increment: phase += omega * Ts * 2^32
+    // For 0th harmonic (DC), harmonic_freq is 0, so angle_step becomes 0 (constant phase).
     ch->angle_step = (uint32_t)((harmonic_freq * hca->sampling_time)
                                 * 4294967296.0f);
     ch->current_angle = 0;
 
-    // Disperser window length (one electrical period)
+    // Disperser window length calculation
+    // SPECIAL CASE FOR DC (Order 0):
+    // For DC, we cannot use 1/f since f=0.
+    // The DC component is the average value over one FUNDAMENTAL period.
+    // Therefore, for order 0, we use the fundamental frequency to calculate window size.
+    float freq_for_window = (order == 0) ? hca->fundamental_freq : harmonic_freq;
+
     uint16_t Ns = (uint16_t)(1.0f /
-                   (harmonic_freq * hca->sampling_time));
+                   (freq_for_window * hca->sampling_time));
 
     if (Ns > MAX_WINDOW_SIZE) Ns = MAX_WINDOW_SIZE;
-
-    ch->window_len = Ns;
-    ch->inv_window_len = 1.0f / (float)Ns;
-    ch->buf_head = 0;
-
-    ch->running_sum.real = 0.0f;
-    ch->running_sum.imag = 0.0f;
-
-    // Clear disperser buffer
-    for (int i = 0; i < MAX_WINDOW_SIZE; i++) {
-        ch->buffer[i].real = 0.0f;
-        ch->buffer[i].imag = 0.0f;
-    }
 
     // Reset PI integrator
     ch->integrator_state.real = 0.0f;
@@ -241,6 +234,16 @@ float HCA_Process(HCA_Handle_t *hca, float input_signal) {
     if (!is_lut_initialized) return 0.0f;
 
     float total_u_t = 0.0f;
+
+    // Disperser - harmonic step
+    // e[n]-e[n-N]*(1/N)
+    int32_t read_index = (hca->buf_head - hca->window_len) & WINDOW_MASK;
+    float delayed_val = hca->buffer[read_index];
+    float harmonic_step = (input_signal - delayed_val)*hca->inv_window_len;
+
+    // Update circular buffer
+    hca->buffer[hca->buf_head] = input_signal;
+    hca->buf_head = (hca->buf_head + 1) & WINDOW_MASK;
 
     for (int i = 0; i < hca->active_channel_count; i++) {
 
@@ -262,37 +265,21 @@ float HCA_Process(HCA_Handle_t *hca, float input_signal) {
         // ====================================================
         // DISPERSER
         // ====================================================
-        // Input -> Modulation -> Sliding integrator -> Averaging
+        // Input -> Step -> Modulation
 
         // 1. Modulation: x * e^{-jωt}
         Complex_t modulated_val;
-        modulated_val.real = input_signal * rot_pos.real;
-        modulated_val.imag = input_signal * (-rot_pos.imag);
+        modulated_val.real = harmonic_step * rot_pos.real;
+        modulated_val.imag = harmonic_step * (-rot_pos.imag);
 
-        // 2. Sliding window integration
-        int32_t read_index =
-            (ch->buf_head - ch->window_len) & WINDOW_MASK;
-
-        Complex_t delayed_val = ch->buffer[read_index];
-
-        ch->running_sum = Complex_Add(ch->running_sum, modulated_val);
-        ch->running_sum.real -= delayed_val.real;
-        ch->running_sum.imag -= delayed_val.imag;
-
-        // Update circular buffer
-        ch->buffer[ch->buf_head] = modulated_val;
-        ch->buf_head = (ch->buf_head + 1) & WINDOW_MASK;
-
-        // 3. Averaging (1/T -> implemented as 1/N)
-        Complex_t disperser_out =
-            Complex_Scale(ch->running_sum, ch->inv_window_len);
+        ch->current_val = Complex_Add(ch->current_val, modulated_val);
 
         // ====================================================
         // COMPLEX PI CONTROLLER
         // ====================================================
         // error_dq -> PI -> output_dq
 
-        Complex_t error_dq = disperser_out;
+        Complex_t error_dq = ch->current_val;
 
         // Proportional term
         Complex_t prop_term = Complex_Mult(ch->Kp, error_dq);
@@ -329,8 +316,15 @@ float HCA_Process(HCA_Handle_t *hca, float input_signal) {
             Complex_Mult(output_dq, rot_pos);
 
         // 2. Take real part and scale
+        // SPECIAL CASE FOR DC (Order 0):
+        // For AC harmonics, the complex phasor representation splits amplitude into 
+        // two counter-rotating vectors (Euler's formula), requiring a gain of 2.0 
+        // to reconstruct the original amplitude.
+        // For DC (Order 0), there is no splitting (cos(0)=1), so the gain must be 1.0.
+        float current_gain = (ch->harmonic_order == 0) ? 1.0f : 2.0f;
+        
         float channel_out =
-            rotated_val.real * hca->assembler_gain;
+            rotated_val.real * current_gain;
 
         // 3. Sum all harmonic channels
         total_u_t += channel_out;
