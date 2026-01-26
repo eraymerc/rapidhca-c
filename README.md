@@ -1,7 +1,6 @@
 # rapidHCA-c
 
-**rapidHCA-c** is a high-performance, deterministic C implementation of the  
-**Harmonic Control Array (HCA)** controller based on parallel PI controllers.
+**rapidHCA-c** is a high-performance, deterministic C implementation of the **Harmonic Control Array (HCA)** controller based on parallel PI controllers.
 
 The library is designed for real-time control applications and optimized using
 Direct Digital Synthesis (DDS) and LUT-based phasor generation.
