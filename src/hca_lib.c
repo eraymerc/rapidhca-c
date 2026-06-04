@@ -136,7 +136,8 @@ float HCA_fastSin(uint32_t phase) {
 }
 
 float HCA_fastCos(uint32_t phase) {
-    uint32_t idx_cos = (phase + (LUT_SIZE >> 2)) & LUT_MASK;
+    uint32_t idx_sin = phase >> (32 - LUT_BITS);
+    uint32_t idx_cos = (idx_sin + (LUT_SIZE >> 2)) & LUT_MASK;
     return HCA_sin_table[idx_cos];
 }
 
@@ -337,4 +338,68 @@ float HCA_Process(HCA_Handle_t *hca, float input_signal) {
         total_u_t = -hca->output_limit;
 
     return total_u_t;
+}
+
+void HCA_UpdateChannel(HCA_Handle_t *hca,
+                       uint8_t       order,
+                       Complex_t     kp,
+                       Complex_t     ki)
+{
+    for (int i = 0; i < hca->active_channel_count; i++) {
+        if (hca->channels[i].harmonic_order == order) {
+            /*
+             * Write Kp first, then Ki.  The ISR may read between these two
+             * writes — see header note.  For tuning purposes this is fine.
+             */
+            hca->channels[i].Kp = kp;
+            hca->channels[i].Ki = ki;
+            return;
+        }
+    }
+    /* order not found — silently ignore */
+}
+
+void HCA_reset_accumulators(HCA_Handle_t* hca) {
+    if (!hca) return;
+
+    hca->buf_head = 0;
+        
+    // Clear the entire sliding window buffer
+    memset(hca->buffer, 0, sizeof(float) * MAX_WINDOW_SIZE);
+
+    for (uint8_t i = 0; i < hca->active_channel_count; i++) {
+        HCA_Channel_t* ch = &hca->channels[i];
+        
+        // 1. Reset Integrators
+        ch->integrator_state.real = 0.0f;
+        ch->integrator_state.imag = 0.0f;
+        
+        // 2. Reset Disperser State (Full Clear)
+        ch->current_val.real = 0.0f;
+        ch->current_val.imag = 0.0f;
+
+        //ch->current_angle = (uint32_t)0;
+    }
+}
+
+void HCA_reset_accumulators_fast(HCA_Handle_t* hca) {
+    if (!hca) return;
+    hca->buf_head = 0;
+
+    for (uint8_t i = 0; i < hca->active_channel_count; i++) {
+        HCA_Channel_t* ch = &hca->channels[i];
+        
+        // 1. Reset Integrators
+        ch->integrator_state.real = 0.0f;
+        ch->integrator_state.imag = 0.0f;
+
+        // 2. Reset Disperser Sum and Head
+        // We reset the sum and head, but leave the buffer data as-is.
+        // It will be overwritten as the head advances.
+        ch->current_val.real = 0.0f;
+        ch->current_val.imag = 0.0f;
+
+        //ch->current_angle = (uint32_t)0;
+
+    }
 }

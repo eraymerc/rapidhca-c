@@ -67,7 +67,7 @@
  * Used to compensate computational delay by advancing the phasor angle
  * during reconstruction (assembler stage).
  */
-#define HCA_DELAY_COMPENSATION_MULTIPLIER 1.5f
+#define HCA_DELAY_COMPENSATION_MULTIPLIER 0.0f
 
 
 /* ============================================================================
@@ -254,5 +254,34 @@ void HCA_Add_Channel(HCA_Handle_t *hca,
  * @return Control output (real-valued)
  */
 float HCA_Process(HCA_Handle_t *hca, float input_signal);
+
+/**
+ * @brief Update Kp and Ki gains of an existing harmonic channel at runtime.
+ *
+ * Finds the channel whose harmonic_order matches @p order and overwrites
+ * its Kp and Ki.  Both components are written together so the channel never
+ * runs with a mixed old/new gain set.
+ *
+ * Thread-safety note: on Cortex-M4 each float write is a single STR
+ * instruction (atomic for aligned 32-bit values).  Writing a Complex_t
+ * (two floats) is NOT atomic.  The caller must ensure this runs from the
+ * main loop, not from the ADC ISR.  At worst one HCA_Process call may see
+ * the new Kp with the old Ki — which causes a single glitched output sample.
+ * For gain-tuning purposes this is acceptable.
+ *
+ * @param hca   Pointer to HCA handle
+ * @param order Harmonic order to update (must already exist via HCA_Add_Channel)
+ * @param kp    New complex proportional gain
+ * @param ki    New complex integral gain
+ */
+void HCA_UpdateChannel(HCA_Handle_t *hca,
+                       uint8_t       order,
+                       Complex_t     kp,
+                       Complex_t     ki);
+
+void HCA_reset_accumulators(HCA_Handle_t* hca);
+
+
+void HCA_reset_accumulators_fast(HCA_Handle_t* hca);
 
 #endif /* INC_HCA_LIB_H_ */
