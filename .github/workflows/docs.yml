@@ -1,11 +1,20 @@
-- name: Doxygen Deploy Action
+name: Deploy Doxygen via Action
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Doxygen Deploy Action
         uses: JustEnoughMod/DoxygenDeployAction@1.0.1
         with:
-          # A GitHub token for pushing to the repo. 
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Branch name for pushing GitHub pages files
           branch: gh-pages
-          # Folder where Doxygen will generate the HTML build files
           folder: html
-          # Path of the Doxygen configuration file
           config_file: Doxyfile
