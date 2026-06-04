@@ -22,6 +22,7 @@ GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
 FULL_SIDEBAR           = NO
 
-# Point to your new CSS files (paths are relative to the Doxyfile)
-HTML_EXTRA_STYLESHEET  = doxygen-theme/doxygen-awesome.css \
-                         doxygen-theme/doxygen-awesome-sidebar-only.css
+# Point to your new CSS files (paths are relative to the root directory)
+HTML_EXTRA_STYLESHEET  = docs/doxygen-theme/doxygen-awesome.css \
+                         docs/doxygen-theme/doxygen-awesome-sidebar-only.css
+
