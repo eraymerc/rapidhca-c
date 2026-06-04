@@ -1,0 +1,16 @@
+# Project settings
+PROJECT_NAME           = "rapidHCA-c"
+PROJECT_BRIEF          = "C implementation and documentation"
+
+# Tell Doxygen where your code lives
+INPUT                  = src
+RECURSIVE              = YES
+
+# Optimize parsing for C source code
+OPTIMIZE_OUTPUT_FOR_C  = YES
+EXTRACT_ALL            = YES
+
+# Output formats (We only want HTML for the website)
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
