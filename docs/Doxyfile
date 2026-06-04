@@ -14,3 +14,14 @@ EXTRACT_ALL            = YES
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 GENERATE_LATEX         = NO
+
+# Enable the interactive sidebar
+GENERATE_TREEVIEW      = YES
+
+# Disable the old-school top navigation index
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+
+# Point to your new CSS files (paths are relative to the Doxyfile)
+HTML_EXTRA_STYLESHEET  = doxygen-theme/doxygen-awesome.css \
+                         doxygen-theme/doxygen-awesome-sidebar-only.css
