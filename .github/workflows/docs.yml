@@ -1,20 +1,43 @@
-name: Deploy Doxygen via Action
+name: Deploy Doxygen to GitHub Pages
 
 on:
   push:
     branches: ["main"]
 
+# Grants the workflow permission to push to your live GitHub Pages site
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Doxygen Deploy Action
-        uses: JustEnoughMod/DoxygenDeployAction@1.0.1
+      # Your chosen action to generate the HTML
+      - name: Doxygen Action
+        uses: mattnotmitt/doxygen-action@1.9.8
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          folder: html
-          config_file: Doxyfile
+          doxyfile-path: ./Doxyfile
+          working-directory: .
+          enable-latex: false
+
+      # Packages the generated HTML folder so the deploy job can use it
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'html'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
