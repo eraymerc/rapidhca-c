@@ -3,7 +3,7 @@ PROJECT_NAME           = "rapidHCA-c"
 PROJECT_BRIEF          = "C implementation and documentation"
 
 # Tell Doxygen where your code lives
-INPUT                  = src
+INPUT                  = src docs
 RECURSIVE              = YES
 
 # Optimize parsing for C source code
