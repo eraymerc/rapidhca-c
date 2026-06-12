@@ -7,7 +7,7 @@ Direct Digital Synthesis (DDS) and LUT-based phasor generation.
 It has been validated in real-time execution on a STM32F4 series microcontroller but remains fully portable
 and suitable for desktop simulations.
 
-Still under development and will be updated within the next 6 months.
+Still under development for improvements but currently ready to use in any project.
 ---
 
 ## What this repository provides
